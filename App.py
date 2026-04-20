@@ -7,8 +7,8 @@ import io
 import pandas as pd
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-from models import db, User, Vehicle, Driver, Rental, Maintenance
-from forms import LoginForm, VehicleForm, DriverForm, RentalForm, MaintenanceForm
+from Models import db, User, Vehicle, Driver, Rental, Maintenance
+from Forms import LoginForm, VehicleForm, DriverForm, RentalForm, MaintenanceForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'clave-super-segura-cambiar-en-produccion'
@@ -39,7 +39,7 @@ def login():
             return redirect(url_for('dashboard'))
         else:
             flash('Usuario o contraseña incorrectos', 'danger')
-    return render_template('login.html', form=form)
+    return render_template('Login.html', form=form)
 
 @app.route('/logout')
 @login_required
