@@ -1,0 +1,60 @@
+{% extends "Base.html" %}
+{% block content %}
+<h2><i class="bi bi-file-text"></i> Reportes Financieros</h2>
+<form method="GET" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <label>Fecha inicio</label>
+        <input type="date" name="start_date" class="form-control" value="{{ start_date or '' }}">
+    </div>
+    <div class="col-md-4">
+        <label>Fecha fin</label>
+        <input type="date" name="end_date" class="form-control" value="{{ end_date or '' }}">
+    </div>
+    <div class="col-md-2 align-self-end">
+        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+    </div>
+    <div class="col-md-2 align-self-end">
+        <div class="btn-group w-100">
+            <button type="submit" name="format" value="excel" class="btn btn-success">Excel</button>
+            <button type="submit" name="format" value="pdf" class="btn btn-danger">PDF</button>
+        </div>
+    </div>
+</form>
+
+{% if start_date and end_date %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header bg-success text-white">Ingresos por Rentas</div>
+            <div class="card-body"><h3>${{ "%.2f"|format(total_income) }}</h3></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header bg-danger text-white">Egresos por Mantenimiento</div>
+            <div class="card-body"><h3>${{ "%.2f"|format(total_expenses) }}</h3></div>
+        </div>
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">Balance del período</div>
+    <div class="card-body"><h2 class="text-{% if total_income - total_expenses >= 0 %}success{% else %}danger{% endif %}">${{ "%.2f"|format(total_income - total_expenses) }}</h2></div>
+</div>
+
+<canvas id="myChart" width="400" height="200" style="max-width:600px; margin:0 auto"></canvas>
+<script>
+    const ctx = document.getElementById('myChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Ingresos', 'Egresos'],
+            datasets: [{
+                label: 'Monto ($)',
+                data: [{{ total_income }}, {{ total_expenses }}],
+                backgroundColor: ['#28a745', '#dc3545']
+            }]
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}
