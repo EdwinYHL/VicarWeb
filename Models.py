@@ -19,7 +19,7 @@ class Vehicle(db.Model):
     year = db.Column(db.Integer)
     plate = db.Column(db.String(20), unique=True, nullable=False)
     serial = db.Column(db.String(50), unique=True)
-    status = db.Column(db.String(20), default='Disponible')  # Disponible, Rentado, Mantenimiento
+    status = db.Column(db.String(20), default='Disponible')
 
 class Driver(db.Model):
     __tablename__ = 'drivers'
@@ -48,7 +48,7 @@ class Maintenance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     vehicle_id = db.Column(db.Integer, db.ForeignKey('vehicles.id'), nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.now)
-    type = db.Column(db.String(50))  # Preventivo, Correctivo
+    type = db.Column(db.String(50))
     workshop = db.Column(db.String(100))
     description = db.Column(db.Text)
     cost = db.Column(db.Float)
