@@ -1,0 +1,27 @@
+{% extends "Base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <h2><i class="bi bi-tools"></i> Historial de Mantenimientos</h2>
+    <a href="{{ url_for('maintenance_add') }}" class="btn btn-success"><i class="bi bi-plus-circle"></i> Nuevo Mantenimiento</a>
+</div>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr><th>ID</th><th>Vehículo</th><th>Fecha</th><th>Tipo</th><th>Taller</th><th>Costo</th><th>Próximo Mant.</th></tr>
+        </thead>
+        <tbody>
+            {% for m in maintenances %}
+            <tr>
+                <td>{{ m.id }}</td>
+                <td>{{ m.vehicle.brand }} {{ m.vehicle.model }}</td>
+                <td>{{ m.date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ m.type }}</td>
+                <td>{{ m.workshop }}</td>
+                <td>${{ m.cost }}</td>
+                <td>{{ m.next_maintenance_date.strftime('%Y-%m-%d') if m.next_maintenance_date else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
