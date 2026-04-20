@@ -1,0 +1,22 @@
+{% extends "Base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><h4><i class="bi bi-cash"></i> Registrar Renta</h4></div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">{{ form.vehicle_id.label(class="form-label") }}{{ form.vehicle_id(class="form-select") }}</div>
+                    <div class="mb-3">{{ form.driver_id.label(class="form-label") }}{{ form.driver_id(class="form-select") }}</div>
+                    <div class="mb-3">{{ form.start_date.label(class="form-label") }}{{ form.start_date(class="form-control", placeholder="YYYY-MM-DD HH:MM") }}</div>
+                    <div class="mb-3">{{ form.origin.label(class="form-label") }}{{ form.origin(class="form-control") }}</div>
+                    <div class="mb-3">{{ form.destination.label(class="form-label") }}{{ form.destination(class="form-control") }}</div>
+                    <div class="mb-3">{{ form.amount.label(class="form-label") }}{{ form.amount(class="form-control") }}</div>
+                    <button type="submit" class="btn btn-primary w-100">Registrar Renta</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
