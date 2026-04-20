@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2><i class="bi bi-speedometer2"></i> Panel de Control</h2>
+        <p class="text-muted">Bienvenido al sistema de gestión VICAR</p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><h6 class="card-title">Vehículos</h6><h2>{{ total_vehicles }}</h2></div>
+                    <i class="bi bi-car-front display-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><h6 class="card-title">Conductores</h6><h2>{{ total_drivers }}</h2></div>
+                    <i class="bi bi-people display-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><h6 class="card-title">Rentas Activas</h6><h2>{{ active_rentals }}</h2></div>
+                    <i class="bi bi-cash-stack display-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><h6 class="card-title">Mantenimientos Próximos</h6><h2>{{ pending_maintenance }}</h2></div>
+                    <i class="bi bi-tools display-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header"><h5>Acciones Rápidas</h5></div>
+            <div class="card-body">
+                <a href="{{ url_for('vehicle_add') }}" class="btn btn-outline-primary"><i class="bi bi-plus-circle"></i> Nuevo Vehículo</a>
+                <a href="{{ url_for('driver_add') }}" class="btn btn-outline-success"><i class="bi bi-person-plus"></i> Nuevo Conductor</a>
+                <a href="{{ url_for('rental_add') }}" class="btn btn-outline-warning"><i class="bi bi-cash"></i> Nueva Renta</a>
+                <a href="{{ url_for('maintenance_add') }}" class="btn btn-outline-info"><i class="bi bi-wrench"></i> Registrar Mantenimiento</a>
+                <a href="{{ url_for('reports') }}" class="btn btn-outline-secondary"><i class="bi bi-file-text"></i> Ver Reportes</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
