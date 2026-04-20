@@ -1,0 +1,23 @@
+{% extends "Base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><h4><i class="bi bi-wrench"></i> Registrar Mantenimiento</h4></div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">{{ form.vehicle_id.label(class="form-label") }}{{ form.vehicle_id(class="form-select") }}</div>
+                    <div class="mb-3">{{ form.date.label(class="form-label") }}{{ form.date(class="form-control", placeholder="YYYY-MM-DD HH:MM") }}</div>
+                    <div class="mb-3">{{ form.type.label(class="form-label") }}{{ form.type(class="form-select") }}</div>
+                    <div class="mb-3">{{ form.workshop.label(class="form-label") }}{{ form.workshop(class="form-control") }}</div>
+                    <div class="mb-3">{{ form.description.label(class="form-label") }}{{ form.description(class="form-control", rows=3) }}</div>
+                    <div class="mb-3">{{ form.cost.label(class="form-label") }}{{ form.cost(class="form-control") }}</div>
+                    <div class="mb-3">{{ form.next_maintenance_date.label(class="form-label") }}{{ form.next_maintenance_date(class="form-control", placeholder="YYYY-MM-DD") }}</div>
+                    <button type="submit" class="btn btn-primary w-100">Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
