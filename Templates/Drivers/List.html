@@ -1,0 +1,27 @@
+{% extends "Base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <h2><i class="bi bi-people"></i> Conductores</h2>
+    <a href="{{ url_for('driver_add') }}" class="btn btn-success"><i class="bi bi-plus-circle"></i> Nuevo Conductor</a>
+</div>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead class="table-dark"><tr><th>ID</th><th>Nombre</th><th>Licencia</th><th>Teléfono</th><th>Email</th><th>Acciones</th></tr></thead>
+        <tbody>
+            {% for d in drivers %}
+            <tr>
+                <td>{{ d.id }}</td>
+                <td>{{ d.name }}</td>
+                <td>{{ d.license_number }}</td>
+                <td>{{ d.phone }}</td>
+                <td>{{ d.email }}</td>
+                <td>
+                    <a href="{{ url_for('driver_edit', id=d.id) }}" class="btn btn-sm btn-info"><i class="bi bi-pencil"></i></a>
+                    <a href="{{ url_for('driver_delete', id=d.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar conductor?')"><i class="bi bi-trash"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
