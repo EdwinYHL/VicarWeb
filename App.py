@@ -1,5 +1,4 @@
 from flask import Flask, render_template, redirect, url_for, flash, request, send_file
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -10,67 +9,68 @@ from reportlab.pdfgen import canvas
 from Models import db, User, Vehicle, Driver, Rental, Maintenance
 from Forms import LoginForm, VehicleForm, DriverForm, RentalForm, MaintenanceForm
 
-app = Flask(__name__)
+# Configurar la carpeta estática como 'Static' (con mayúscula)
+app = Flask(__name__, static_folder='Static')
 app.config['SECRET_KEY'] = 'clave-super-segura-cambiar-en-produccion'
-# Configuración de PostgreSQL local (ajusta usuario, contraseña, host, puerto)
+# Cambia estos datos por los de tu PostgreSQL local
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://usuario:contraseña@localhost/vicar_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+login_manager.login_view = 'Login'
 login_manager.login_message = 'Por favor inicie sesión para acceder.'
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# ---------- Rutas de autenticación ----------
-@app.route('/login', methods=['GET', 'POST'])
-def login():
+# ---------- Autenticación ----------
+@app.route('/Login', methods=['GET', 'POST'])
+def Login():
     if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('Dashboard'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
             flash(f'Bienvenido {user.username}', 'success')
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('Dashboard'))
         else:
             flash('Usuario o contraseña incorrectos', 'danger')
     return render_template('Login.html', form=form)
 
-@app.route('/logout')
+@app.route('/Logout')
 @login_required
-def logout():
+def Logout():
     logout_user()
     flash('Sesión cerrada correctamente', 'info')
-    return redirect(url_for('login'))
+    return redirect(url_for('Login'))
 
 @app.route('/')
 @login_required
-def dashboard():
+def Dashboard():
     total_vehicles = Vehicle.query.count()
     total_drivers = Driver.query.count()
     active_rentals = Rental.query.filter(Rental.end_date.is_(None)).count()
     pending_maintenance = Maintenance.query.filter(Maintenance.next_maintenance_date >= datetime.today()).count()
-    return render_template('dashboard.html',
+    return render_template('Dashboard.html',
                            total_vehicles=total_vehicles,
                            total_drivers=total_drivers,
                            active_rentals=active_rentals,
                            pending_maintenance=pending_maintenance)
 
-# ---------- Módulo Vehículos ----------
-@app.route('/vehicles')
+# ---------- Vehículos ----------
+@app.route('/Vehicles')
 @login_required
-def vehicles_list():
+def VehiclesList():
     vehicles = Vehicle.query.all()
-    return render_template('vehicles/list.html', vehicles=vehicles)
+    return render_template('Vehicles/List.html', vehicles=vehicles)
 
-@app.route('/vehicles/add', methods=['GET', 'POST'])
+@app.route('/Vehicles/Add', methods=['GET', 'POST'])
 @login_required
-def vehicle_add():
+def VehicleAdd():
     form = VehicleForm()
     if form.validate_on_submit():
         vehicle = Vehicle(
@@ -84,12 +84,12 @@ def vehicle_add():
         db.session.add(vehicle)
         db.session.commit()
         flash('Vehículo registrado exitosamente', 'success')
-        return redirect(url_for('vehicles_list'))
-    return render_template('vehicles/add.html', form=form)
+        return redirect(url_for('VehiclesList'))
+    return render_template('Vehicles/Add.html', form=form)
 
-@app.route('/vehicles/edit/<int:id>', methods=['GET', 'POST'])
+@app.route('/Vehicles/Edit/<int:id>', methods=['GET', 'POST'])
 @login_required
-def vehicle_edit(id):
+def VehicleEdit(id):
     vehicle = Vehicle.query.get_or_404(id)
     form = VehicleForm(obj=vehicle)
     if form.validate_on_submit():
@@ -101,32 +101,31 @@ def vehicle_edit(id):
         vehicle.status = form.status.data
         db.session.commit()
         flash('Vehículo actualizado', 'success')
-        return redirect(url_for('vehicles_list'))
-    return render_template('vehicles/edit.html', form=form, vehicle=vehicle)
+        return redirect(url_for('VehiclesList'))
+    return render_template('Vehicles/Edit.html', form=form, vehicle=vehicle)
 
-@app.route('/vehicles/delete/<int:id>')
+@app.route('/Vehicles/Delete/<int:id>')
 @login_required
-def vehicle_delete(id):
+def VehicleDelete(id):
     vehicle = Vehicle.query.get_or_404(id)
-    # Verificar que no tenga rentas activas
     if Rental.query.filter_by(vehicle_id=id, end_date=None).first():
         flash('No se puede eliminar un vehículo con renta activa', 'danger')
     else:
         db.session.delete(vehicle)
         db.session.commit()
         flash('Vehículo eliminado', 'info')
-    return redirect(url_for('vehicles_list'))
+    return redirect(url_for('VehiclesList'))
 
-# ---------- Módulo Conductores (Drivers) ----------
-@app.route('/drivers')
+# ---------- Conductores ----------
+@app.route('/Drivers')
 @login_required
-def drivers_list():
+def DriversList():
     drivers = Driver.query.all()
-    return render_template('drivers/list.html', drivers=drivers)
+    return render_template('Drivers/List.html', drivers=drivers)
 
-@app.route('/drivers/add', methods=['GET', 'POST'])
+@app.route('/Drivers/Add', methods=['GET', 'POST'])
 @login_required
-def driver_add():
+def DriverAdd():
     form = DriverForm()
     if form.validate_on_submit():
         driver = Driver(
@@ -139,12 +138,12 @@ def driver_add():
         db.session.add(driver)
         db.session.commit()
         flash('Conductor registrado', 'success')
-        return redirect(url_for('drivers_list'))
-    return render_template('drivers/add.html', form=form)
+        return redirect(url_for('DriversList'))
+    return render_template('Drivers/Add.html', form=form)
 
-@app.route('/drivers/edit/<int:id>', methods=['GET', 'POST'])
+@app.route('/Drivers/Edit/<int:id>', methods=['GET', 'POST'])
 @login_required
-def driver_edit(id):
+def DriverEdit(id):
     driver = Driver.query.get_or_404(id)
     form = DriverForm(obj=driver)
     if form.validate_on_submit():
@@ -155,12 +154,12 @@ def driver_edit(id):
         driver.address = form.address.data
         db.session.commit()
         flash('Conductor actualizado', 'success')
-        return redirect(url_for('drivers_list'))
-    return render_template('drivers/edit.html', form=form, driver=driver)
+        return redirect(url_for('DriversList'))
+    return render_template('Drivers/Edit.html', form=form, driver=driver)
 
-@app.route('/drivers/delete/<int:id>')
+@app.route('/Drivers/Delete/<int:id>')
 @login_required
-def driver_delete(id):
+def DriverDelete(id):
     driver = Driver.query.get_or_404(id)
     if Rental.query.filter_by(driver_id=id, end_date=None).first():
         flash('No se puede eliminar un conductor con renta activa', 'danger')
@@ -168,20 +167,19 @@ def driver_delete(id):
         db.session.delete(driver)
         db.session.commit()
         flash('Conductor eliminado', 'info')
-    return redirect(url_for('drivers_list'))
+    return redirect(url_for('DriversList'))
 
-# ---------- Módulo Rentas ----------
-@app.route('/rentals')
+# ---------- Rentas ----------
+@app.route('/Rentals')
 @login_required
-def rentals_list():
+def RentalsList():
     rentals = Rental.query.order_by(Rental.start_date.desc()).all()
-    return render_template('rentals/list.html', rentals=rentals)
+    return render_template('Rentals/List.html', rentals=rentals)
 
-@app.route('/rentals/add', methods=['GET', 'POST'])
+@app.route('/Rentals/Add', methods=['GET', 'POST'])
 @login_required
-def rental_add():
+def RentalAdd():
     form = RentalForm()
-    # Llenar los choices de vehículos y conductores disponibles
     form.vehicle_id.choices = [(v.id, f"{v.brand} {v.model} - {v.plate}") for v in Vehicle.query.filter_by(status='Disponible').all()]
     form.driver_id.choices = [(d.id, d.name) for d in Driver.query.all()]
     if form.validate_on_submit():
@@ -189,45 +187,43 @@ def rental_add():
             vehicle_id=form.vehicle_id.data,
             driver_id=form.driver_id.data,
             start_date=form.start_date.data,
-            end_date=None,  # Aún no ha finalizado
+            end_date=None,
             origin=form.origin.data,
             destination=form.destination.data,
             amount=form.amount.data
         )
-        # Cambiar estado del vehículo a 'Rentado'
         vehicle = Vehicle.query.get(form.vehicle_id.data)
         vehicle.status = 'Rentado'
         db.session.add(rental)
         db.session.commit()
         flash('Renta registrada exitosamente', 'success')
-        return redirect(url_for('rentals_list'))
-    return render_template('rentals/add.html', form=form)
+        return redirect(url_for('RentalsList'))
+    return render_template('Rentals/Add.html', form=form)
 
-@app.route('/rentals/end/<int:id>')
+@app.route('/Rentals/End/<int:id>')
 @login_required
-def rental_end(id):
+def RentalEnd(id):
     rental = Rental.query.get_or_404(id)
     if rental.end_date is None:
         rental.end_date = datetime.now()
-        # Liberar vehículo
         vehicle = Vehicle.query.get(rental.vehicle_id)
         vehicle.status = 'Disponible'
         db.session.commit()
         flash('Renta finalizada', 'success')
     else:
         flash('Esta renta ya estaba finalizada', 'warning')
-    return redirect(url_for('rentals_list'))
+    return redirect(url_for('RentalsList'))
 
-# ---------- Módulo Mantenimiento ----------
-@app.route('/maintenance')
+# ---------- Mantenimiento ----------
+@app.route('/Maintenance')
 @login_required
-def maintenance_list():
+def MaintenanceList():
     maintenances = Maintenance.query.order_by(Maintenance.date.desc()).all()
-    return render_template('maintenance/list.html', maintenances=maintenances)
+    return render_template('Maintenance/List.html', maintenances=maintenances)
 
-@app.route('/maintenance/add', methods=['GET', 'POST'])
+@app.route('/Maintenance/Add', methods=['GET', 'POST'])
 @login_required
-def maintenance_add():
+def MaintenanceAdd():
     form = MaintenanceForm()
     form.vehicle_id.choices = [(v.id, f"{v.brand} {v.model} - {v.plate}") for v in Vehicle.query.all()]
     if form.validate_on_submit():
@@ -243,16 +239,16 @@ def maintenance_add():
         db.session.add(maintenance)
         db.session.commit()
         flash('Mantenimiento registrado', 'success')
-        return redirect(url_for('maintenance_list'))
-    return render_template('maintenance/add.html', form=form)
+        return redirect(url_for('MaintenanceList'))
+    return render_template('Maintenance/Add.html', form=form)
 
-# ---------- Módulo Reportes ----------
-@app.route('/reports', methods=['GET', 'POST'])
+# ---------- Reportes ----------
+@app.route('/Reports', methods=['GET', 'POST'])
 @login_required
-def reports():
+def Reports():
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
-    format = request.args.get('format', 'html')  # html, excel, pdf
+    format = request.args.get('format', 'html')
     rentals = []
     maintenances = []
     total_income = 0
@@ -265,7 +261,6 @@ def reports():
         total_income = sum(r.amount for r in rentals)
         total_expenses = sum(m.cost for m in maintenances)
         if format == 'excel':
-            # Exportar a Excel
             data_rentals = [{'Fecha': r.start_date, 'Vehículo': r.vehicle.brand + ' ' + r.vehicle.model,
                              'Conductor': r.driver.name, 'Origen': r.origin, 'Destino': r.destination,
                              'Monto': r.amount} for r in rentals]
@@ -280,7 +275,6 @@ def reports():
             output.seek(0)
             return send_file(output, download_name=f'reporte_{start_date}_{end_date}.xlsx', as_attachment=True)
         elif format == 'pdf':
-            # Exportar a PDF simplificado
             buffer = io.BytesIO()
             c = canvas.Canvas(buffer, pagesize=letter)
             c.drawString(100, 750, f"Reporte VICAR del {start_date} al {end_date}")
@@ -290,7 +284,7 @@ def reports():
             c.save()
             buffer.seek(0)
             return send_file(buffer, download_name=f'reporte_{start_date}_{end_date}.pdf', as_attachment=True)
-    return render_template('reports/index.html', rentals=rentals, maintenances=maintenances,
+    return render_template('Reports/Index.html', rentals=rentals, maintenances=maintenances,
                            total_income=total_income, total_expenses=total_expenses,
                            start_date=start_date, end_date=end_date)
 
